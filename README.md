@@ -17,9 +17,9 @@ Laptop/PC - for offline analysis, with RStudio installed
 Outline (~3 hours total):
 1. Introduction and system overview (0.5 hrs, slides available [here](https://docs.google.com/presentation/d/15klv4ofLfibeXwSj6sTXaMAPqBVutmh1ZmYlQCuTMjQ/edit?usp=sharing))
 2. Tagging demo and BumbleBox setup (0.5 hrs)
-3. Software configuration and data collection (1.5 hr)
-4. Example data analysis (0.75 hrs)
-5. Custom data analyais (0.75 hrs)
+3. Software configuration and data collection (1 hr, instructions [here](https://docs.google.com/document/d/1W1RqzdQtSpiU0_YSXxmmbr3lTLMAUFm6OUdpjWXh3P8/edit?usp=sharing))
+4. Example data analysis (0.5 hrs, R Markdown [here](https://github.com/Crall-Lab/Bumblebox_BOMBUSS/blob/main/code/ExampleBumbleboxAnalysis_BOMBUSS3.Rmd) in the 'code' folder of this repository)
+5. Custom data analyais (0.5 hrs)
 6. (Optional) brood mapping and spatial analysis[^1]
 
 
