@@ -20,4 +20,9 @@ Outline (~4 hours total:
 3. Software configuration and data collection (1.5 hr)
 4. Example data analysis (0.75 hrs)
 5. Custom data analyais (0.75 hrs)
+6. (Optional) brood mapping and spatial analysis[^1]
+
+
+[^1]: For this, you will need a computer set up with [labelme](https://github.com/wkentaro/labelme) installed
+
 
