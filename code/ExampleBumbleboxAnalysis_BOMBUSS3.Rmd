@@ -26,7 +26,7 @@ yl <- 3040
 ```
 
 # Part 1: Load and plot data tracking data from single video
-```{r load example data set for one video, echo = FALSE}
+```{r load example data set for one video}
 
 #Get list of unique trials (using recursive search in case there are subfolders)
 trials <- list.files(pdir, pattern = '*averages.csv', full.names = TRUE, recursive = TRUE)
@@ -79,7 +79,7 @@ ggplot(tracking_data, aes(x = centroidX, y = centroidY, colour = ID)) + geom_poi
 
 ```
 
-```{r combine data, echo=FALSE}
+```{r combine data}
 
 #Make sure you don't have a 'comb_data' object in memory
 rm('comb_data')
