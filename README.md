@@ -14,7 +14,7 @@ Laptop/PC - for offline analysis, with RStudio installed
 
 ## Workshop plan
 
-Outline (~4 hours total:
+Outline (~3 hours total):
 1. Introduction and system overview (0.5 hrs, slides available [here](https://docs.google.com/presentation/d/15klv4ofLfibeXwSj6sTXaMAPqBVutmh1ZmYlQCuTMjQ/edit?usp=sharing))
 2. Tagging demo and BumbleBox setup (0.5 hrs)
 3. Software configuration and data collection (1.5 hr)
