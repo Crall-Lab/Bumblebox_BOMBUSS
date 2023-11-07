@@ -1,0 +1,152 @@
+---
+title: "BumbleboxExampleAnalysis"
+output: pdf_document
+date: "2023-11-07"
+---
+
+```{r setup, include=FALSE}
+#Load packages
+library(ggplot2)
+library(png)
+library(lubridate)
+library(stringr)
+library(grid)
+library(lme4)
+library(lmerTest)
+library(gridExtra)
+#Define parent directory containing data you want to analyze
+#This example uses the zipped data available at:
+#REFREF
+
+pdir <- '/Users/jamescrall/Downloads/2023-10-28'
+
+#Define image dimensions for plotting
+xl <- 4056
+yl <- 3040
+```
+
+# Part 1: Load and plot data tracking data from single video
+```{r load example data set for one video, echo = FALSE}
+
+#Get list of unique trials (using recursive search in case there are subfolders)
+trials <- list.files(pdir, pattern = '*averages.csv', full.names = TRUE, recursive = TRUE)
+
+#Select a random trial - trial 10 in this list
+i <- 10
+
+#Load background photo
+background_im <- readPNG(str_replace(trials[i], '_averages.csv', '.png'))
+
+#Clip image excess
+background_im <- background_im[1:3040,]
+
+#Optional: plot image
+#image(background_im, col = gray.colors(33))
+
+
+#tracking data
+tracking_data <- read.csv(str_replace(trials[i], '_averages.csv', '_updated.csv'))
+tracking_data$ID <- as.factor(tracking_data$ID)
+ggplot(tracking_data, aes(x = centroidX, y = centroidY, colour = ID)) + geom_point()+xlim(c(0,xl)) + ylim(c(0,yl))
+
+#average data
+summary_data <- read.csv(trials[i])
+summary_data
+```
+
+
+
+# Part II: Combine data across all trials
+```{r, compile all raw tracking data}
+#Make sure you don't have a 'comb_data' object in memory
+rm('tracking_data')
+
+for(file in trials){
+  
+  data <- read.csv(str_replace(file, '_averages.csv', '_raw.csv'))
+  ## Compile average data
+  #Check to see if output data frame exists
+  if(!exists('tracking_data')){
+    tracking_data <- data #If not, create it from the first loop
+  } else {
+    tracking_data <- rbind(tracking_data, data) #Otherwise append new data to the end
+  }
+  
+}
+
+tracking_data$ID <- as.factor(tracking_data$ID)
+ggplot(tracking_data, aes(x = centroidX, y = centroidY, colour = ID)) + geom_point(alpha = 0.3, cex = 0.4)+xlim(c(0,xl)) + ylim(c(0,yl))
+
+```
+
+```{r combine data, echo=FALSE}
+
+#Make sure you don't have a 'comb_data' object in memory
+rm('comb_data')
+
+for(file in trials){
+  
+  data <- read.csv(file)
+  ## Compile average data
+  #Check to see if output data frame exists
+  if(!exists('comb_data')){
+    comb_data <- data #If not, create it from the first loop
+  } else {
+    comb_data <- rbind(comb_data, data) #Otherwise append new data to the end
+  }
+  
+}
+
+comb_data$ID <- as.factor(comb_data$ID)
+```
+
+
+```{r plot individual data}
+
+#Clean out missing data
+comb_data <- comb_data[complete.cases(comb_data),]
+
+#Boxplot of speed vs. individual
+ggplot(comb_data, aes(x = reorder(ID, average.speed, FUN = median), y = log10(average.speed)))+geom_boxplot()
+
+#Check for evidence of individual variation
+model <- lmer(log10(1+average.speed)~ID + (1|filename), data = comb_data)
+model.1 <- lmer(log10(1+average.speed)~1 + (1|filename), data = comb_data)
+anova(model, model.1)
+
+
+#Show distance from center by individual
+ggplot(comb_data, aes(x = reorder(ID, average.distance.from.center, FUN = median), y = average.distance.from.center))+geom_boxplot()
+
+
+#Get individual averages
+individual_averages <- aggregate(cbind(average.distance.from.center, average.speed, frames.tracked.in.video)~ID, data = comb_data, FUN = median)
+colnames(individual_averages) <- c('ID', 'dist', 'speed', 'frames_tracked')
+
+# Remove outlier with zero velocity
+individual_averages <- subset(individual_averages, speed > 1)
+
+```
+
+
+```{r, visualize individual behavior over time}
+#Visualize individual speed/distance over time
+
+#Set up timestamps
+start.date <- parse_date_time('2023-10-28 00:00:00', "%Y-%m-%d %H:%M:%S")
+comb_data$datetime <- parse_date_time(substr(comb_data$filename, 14, 32), "%Y-%m-%d_%H-%M-%S")
+comb_data$time.num <- as.numeric(difftime(comb_data$datetime, start.date, units = 'days'))
+
+comb_data <- comb_data[order(comb_data$ID, comb_data$time.num),]
+
+p1 <- ggplot(comb_data, aes(x = time.num, y = average.speed, colour = ID)) + geom_point(alpha = 0.3, cex = 0.4)+geom_line(alpha = 0.3)
+p2 <- ggplot(comb_data, aes(x = reorder(ID, average.speed, FUN = median), y = average.speed, colour = ID))+geom_boxplot()
+
+grid.arrange(p1, p2, ncol=2)
+
+
+p1 <- ggplot(comb_data, aes(x = time.num, y = average.distance.from.center, colour = ID)) + geom_point(alpha = 0.3, cex = 0.4)+geom_line(alpha = 0.3)
+p2 <- ggplot(comb_data, aes(x = reorder(ID, average.distance.from.center, FUN = median), y = average.distance.from.center, colour = ID))+geom_boxplot()
+
+grid.arrange(p1, p2, ncol=2)
+```
