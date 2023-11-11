@@ -63,7 +63,7 @@ rm('tracking_data')
 
 for(file in trials){
   
-  data <- read.csv(str_replace(file, '_averages.csv', '_raw.csv'))
+  data <- read.csv(str_replace(file, '_averages.csv', '_updated.csv'))
   ## Compile average data
   #Check to see if output data frame exists
   if(!exists('tracking_data')){
@@ -127,7 +127,16 @@ colnames(individual_averages) <- c('ID', 'dist', 'speed', 'frames_tracked')
 individual_averages <- subset(individual_averages, speed > 1)
 
 ```
+```{r movement thresholding}
+#Plot histogram of framewise speeds to determine threshold for 'real' movement
+hist(log10(tracking_data$speed), breaks = 30)
 
+#Looks like ~3.1 pixels/frame (log10(3.1)~= 0.5)
+speed_thresh <- 3.1
+tracking_data$moving[tracking_data$speed > speed_thresh] <- 1
+tracking_data$moving[tracking_data$speed < speed_thresh] <- 0
+
+```
 
 ```{r, visualize individual behavior over time}
 #Visualize individual speed/distance over time
@@ -149,4 +158,19 @@ p1 <- ggplot(comb_data, aes(x = time.num, y = average.distance.from.center, colo
 p2 <- ggplot(comb_data, aes(x = reorder(ID, average.distance.from.center, FUN = median), y = average.distance.from.center, colour = ID))+geom_boxplot()
 
 grid.arrange(p1, p2, ncol=2)
+
+
+#Get average time spent moving for each bee
+aggregate(moving~ID, data = tracking_data, FUN = mean)
+```
+
+```{r spatial variation of individuals}
+
+#Plot spatial dsitribution
+p1 <- ggplot(subset(tracking_data, ID == 1), aes(x = centroidX, y = centroidY)) + geom_hex()
+p2 <- ggplot(subset(tracking_data, ID == 13), aes(x = centroidX, y = centroidY)) + geom_hex()
+p3 <- ggplot(subset(tracking_data, ID == 15), aes(x = centroidX, y = centroidY)) + geom_hex()
+p4 <- ggplot(subset(tracking_data, ID == 3), aes(x = centroidX, y = centroidY)) + geom_hex()
+
+grid.arrange(p1,p2,p3,p4, ncol = 2)
 ```
