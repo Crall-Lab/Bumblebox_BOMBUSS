@@ -17,17 +17,17 @@ library(gridExtra)
 library(igraph)
 
 #Define parent directory containing data you want to analyze
-#This example uses the zipped data available at:
-#REFREF
+#This example uses data from a single Bombus impatiens microcolony (data will be provided to workshop participants)
 
 pdir <- '/Users/jamescrall/Downloads/2023-10-28'
+brood_metadata <- read.csv('/Users/jamescrall/Downloads/2023-10-28/bumblebox-01-10-28-nest_image.csv')
 
 #Define image dimensions for plotting
 xl <- 4056
 yl <- 3040
 ```
 
-# Part 1: Load and plot data tracking data from single video
+# Load and plot data tracking data from single video
 ```{r load example data set for one video}
 
 #Get list of unique trials (using recursive search in case there are subfolders)
@@ -42,11 +42,11 @@ background_im <- readPNG(str_replace(trials[i], '_averages.csv', '.png'))
 #Clip image excess
 background_im <- background_im[1:3040,]
 
-#Optional: plot image
+#Optional: plot image (this can be slow)
 #image(background_im, col = gray.colors(33))
 
 
-#tracking data
+#load and plot tag tracking data
 tracking_data <- read.csv(str_replace(trials[i], '_averages.csv', '_updated.csv'))
 tracking_data$ID <- as.factor(tracking_data$ID)
 ggplot(tracking_data, aes(x = centroidX, y = centroidY, colour = ID)) + geom_point()+xlim(c(0,xl)) + ylim(c(0,yl))
@@ -58,7 +58,8 @@ summary_data
 
 
 
-# Part II: Combine data across all trials
+# Explore data across all trials
+## First loop and compile across individual tracking files to compile data
 ```{r, compile all raw tracking data}
 #Make sure you don't have a 'comb_data' object in memory
 rm('tracking_data')
@@ -80,8 +81,8 @@ tracking_data$ID <- as.factor(tracking_data$ID)
 ggplot(tracking_data, aes(x = centroidX, y = centroidY, colour = ID)) + geom_point(alpha = 0.3, cex = 0.4)+xlim(c(0,xl)) + ylim(c(0,yl))
 
 ```
-
-```{r combine data}
+## Compile data on within-trial average data
+```{r combine data on average metrics within videos}
 
 #Make sure you don't have a 'comb_data' object in memory
 rm('comb_data')
@@ -102,7 +103,7 @@ for(file in trials){
 comb_data$ID <- as.factor(comb_data$ID)
 ```
 
-
+## Plot variation in speed and distance from center across individuals
 ```{r plot individual data}
 
 #Clean out missing data
@@ -129,6 +130,7 @@ colnames(individual_averages) <- c('ID', 'dist', 'speed', 'frames_tracked')
 individual_averages <- subset(individual_averages, speed > 1)
 
 ```
+## Determine activity (moving vs. not moving) by thresholding speed
 ```{r movement thresholding}
 #Plot histogram of framewise speeds to determine threshold for 'real' movement
 hist(log10(tracking_data$speed), breaks = 30)
@@ -140,6 +142,7 @@ tracking_data$moving[tracking_data$speed < speed_thresh] <- 0
 
 ```
 
+## Visualize changes in individual behavior over time
 ```{r, visualize individual behavior over time}
 #Visualize individual speed/distance over time
 
@@ -170,21 +173,25 @@ grid.arrange(p1, p2, ncol=2)
 aggregate(moving~ID, data = tracking_data, FUN = mean)
 ```
 
+## Individual spatial variation
 ```{r spatial variation of individuals}
+#Plot for single representative individual, with brood locations overlaid
+ggplot(subset(tracking_data, ID == 9), aes(x = centroidX, y = centroidY)) + geom_hex()+ggtitle('worker 9')+geom_point(data=brood_metadata, aes(x = x, y = y, colour = label))
 
-#Plot spatial dsitribution
-p1 <- ggplot(subset(tracking_data, ID == 1), aes(x = centroidX, y = centroidY)) + geom_hex()
-p2 <- ggplot(subset(tracking_data, ID == 13), aes(x = centroidX, y = centroidY)) + geom_hex()
-p3 <- ggplot(subset(tracking_data, ID == 15), aes(x = centroidX, y = centroidY)) + geom_hex()
-p4 <- ggplot(subset(tracking_data, ID == 3), aes(x = centroidX, y = centroidY)) + geom_hex()
+#Plot spatial distribution for select individuals (representing centrality range)
+p1 <- ggplot(subset(tracking_data, ID == 1), aes(x = centroidX, y = centroidY)) + geom_hex(show.legend = FALSE)+ggtitle('worker 1')+geom_point(data=brood_metadata, aes(x = x, y = y, colour = label, alpha = 0.7), show.legend = FALSE)
+p2 <- ggplot(subset(tracking_data, ID == 13), aes(x = centroidX, y = centroidY)) + geom_hex(show.legend = FALSE)+ggtitle('worker 13')+geom_point(data=brood_metadata, aes(x = x, y = y, colour = label, alpha = 0.7), show.legend = FALSE)
+p3 <- ggplot(subset(tracking_data, ID == 15), aes(x = centroidX, y = centroidY)) + geom_hex(show.legend = FALSE)+ggtitle('worker 15')+geom_point(data=brood_metadata, aes(x = x, y = y, colour = label, alpha = 0.7), show.legend = FALSE)
+p4 <- ggplot(subset(tracking_data, ID == 3), aes(x = centroidX, y = centroidY)) + geom_hex(show.legend = FALSE)+ggtitle('worker 3')+geom_point(data=brood_metadata, aes(x = x, y = y, colour = label, alpha = 0.7), show.legend = FALSE)
 
 grid.arrange(p1,p2,p3,p4, ncol = 2)
 ```
 
+
+## Contact-based social networks
 ```{r contact network analysis}
 
 #Load contact data by looping over source files
-rm('contact_data')
 
 #Create empty output data structure
 out_data <- as.data.frame(matrix(ncol = 17, nrow = 0))
