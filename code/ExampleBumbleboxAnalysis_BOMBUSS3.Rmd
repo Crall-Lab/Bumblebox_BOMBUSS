@@ -174,3 +174,31 @@ p4 <- ggplot(subset(tracking_data, ID == 3), aes(x = centroidX, y = centroidY)) 
 
 grid.arrange(p1,p2,p3,p4, ncol = 2)
 ```
+
+```{r contact network analysis}
+#Load contact data
+rm('contact_data')
+
+out_data <- as.data.frame(matrix(ncol = 17, nrow = 0))
+colnames(out_data) <- as.character(c('ID', as.character(seq(0,15))))
+for(file in trials){
+  
+  data <- read.csv(str_replace(file, '_averages.csv', '_contacts.csv'))
+  #Get rid of 'X' in filenames
+  names(data) <- gsub("X", "", names(data))
+  
+  #Remove columns that aren't in output data
+  
+  data <- data[,colnames(data) %in% colnames(out_data)]
+  ## Compile average data
+  
+  #Check to see if output data frame exists
+  if(!exists('contact_data')){
+    contact_data <- data #If not, create it from the first loop
+  } else {
+    contact_data <- rbind(contact_data, data) #Otherwise append new data to the end
+  }
+  
+}
+
+```
