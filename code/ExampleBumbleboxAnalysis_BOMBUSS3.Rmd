@@ -24,10 +24,11 @@ library(gridExtra)
 library(igraph)
 
 #Define parent directory containing data you want to analyze
-#This example uses data from a single Bombus impatiens microcolony (data will be provided to workshop participants)
+#This example uses data from a single Bombus impatiens microcolony (data available at https://github.com/Crall-Lab/Bumblebox_BOMBUSS/data)
 
-pdir <- '/Users/jamescrall/Downloads/2023-10-28'
-brood_metadata <- read.csv('/Users/jamescrall/Downloads/2023-10-28/bumblebox-01-10-28-nest_image.csv')
+#Set parent directory for data - you will need to change this to wherever you download and unzip the data to on your local machine
+pdir <- '/Users/jamescrall/Desktop/BOMBUSS_sampleData'
+brood_metadata <- read.csv(file.path(pdir, 'bumblebox-01-10-28-nest_image.csv'))
 
 #Define image dimensions for plotting
 xl <- 4056
@@ -44,7 +45,7 @@ trials <- list.files(pdir, pattern = '*averages.csv', full.names = TRUE, recursi
 i <- 10
 
 #Load background photo
-background_im <- readPNG(str_replace(trials[i], '_averages.csv', '.png'))
+background_im <- readPNG(file.path(pdir, 'bumblebox-01_2023-10-28_00-05-02.png'))
 
 #Clip image excess
 background_im <- background_im[1:3040,]
