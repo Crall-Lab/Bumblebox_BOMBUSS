@@ -6,7 +6,7 @@ The goal of this workshop is for participants to get hands-on experience with au
 
 ## Set up, installation, and preparation
 
-Hardware and build [instructions](Fill in)
+Hardware and build (prepared ahead of time)
 
 BumbleBox software available at the [BumbleBox GitHub](https://github.com/Crall-Lab/BumbleBox)
 
