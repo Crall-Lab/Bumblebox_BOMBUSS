@@ -18,7 +18,7 @@ Outline (~3 hours total):
 1. Introduction, system overview and BumbleBox hardware setup (~45 mins)
 2. Software configuration and data collection (~1 hr, instructions [here](https://docs.google.com/document/d/1W1RqzdQtSpiU0_YSXxmmbr3lTLMAUFm6OUdpjWXh3P8/edit?usp=sharing))
 3. Example data analysis (~45 mins, R Markdown [here](https://github.com/Crall-Lab/Bumblebox_BOMBUSS/blob/main/code/ExampleBumbleboxAnalysis_BOMBUSS3.Rmd) in the 'code' folder of this repository)
-4. Custom data analyais (~30 mins)
+4. Custom data analysis (~30 mins)
 5. (Optional) brood mapping demo and spatial analysis[^1]
 
 
